@@ -1,0 +1,14 @@
+/* src/styles/leaflet-fix.css */
+.leaflet-container {
+  background: #1f2937 !important;
+  border-radius: 0.75rem;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #9ca3af !important;
+}
+
+.leaflet-control-attribution a {
+  color: #3b82f6 !important;
+}
