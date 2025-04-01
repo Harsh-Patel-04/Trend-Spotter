@@ -12,8 +12,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import Loader from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
 
@@ -41,7 +39,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans">
-      <Navbar />
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-blue-400">
           Trend Spotter Analytics
@@ -127,7 +124,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
