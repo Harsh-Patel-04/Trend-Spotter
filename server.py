@@ -38,7 +38,7 @@ def _build_cors_preflight_response():
     return response
 
 # 4. Add the analysis function HERE (before the routes)
-def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=10):
+def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None):
     """Analyze sentiment of comments in a subreddit"""
     subreddit = reddit.subreddit(subreddit_name)
     posts = subreddit.hot(limit=post_limit)
@@ -54,7 +54,9 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=10):
         }
         
         post.comments.replace_more(limit=0)
-        comments = post.comments.list()[:comment_limit]
+        all_comments = post.comments.list()
+        # If comment_limit is None, analyze all comments; otherwise, slice to comment_limit
+        comments = all_comments if comment_limit is None else all_comments[:comment_limit]
         
         for comment in comments:
             text = comment.body
@@ -87,7 +89,6 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=10):
 
 @app.route('/dashboard')
 def get_dashboard_data():
-    # Mock data structure - replace with actual data collection logic
     return jsonify({
         "trends": [
             {"name": "AI", "count": 2500},
@@ -117,6 +118,7 @@ def analyze_sentiment():
         subreddit_name = data.get('subreddit', 'technology')
         post_limit = data.get('limit', 5)
         
+        # Call function without comment_limit to analyze all comments
         results = analyze_comments_sentiment(subreddit_name, post_limit)
         
         response = jsonify(results)
@@ -127,8 +129,6 @@ def analyze_sentiment():
         error_response = jsonify({"error": str(e)})
         error_response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
         return error_response, 500
-
-# ... rest of your error handlers and other code ...
 
 @app.errorhandler(500)
 def handle_500(error):
