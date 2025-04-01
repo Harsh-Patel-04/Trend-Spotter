@@ -13,6 +13,7 @@
     "@heroicons/react": "^2.2.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.8",
+    "cors": "^2.8.5",
     "framer-motion": "^12.6.2",
     "heroicons": "^2.2.0",
     "leaflet": "^1.9.4",

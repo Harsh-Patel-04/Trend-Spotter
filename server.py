@@ -20,11 +20,22 @@ analyzer = SentimentIntensityAnalyzer()
 app = Flask(__name__)
 CORS(app, resources={
     r"/analyze_sentiment": {
-        "origins": "http://localhost:5173",
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
         "methods": ["POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
+    },
+    r"/dashboard": {
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "methods": ["GET"]
     }
 })
+
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
+    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    return response
 
 # 4. Add the analysis function HERE (before the routes)
 def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=10):
@@ -73,6 +84,27 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=10):
         "sentiment_distribution": sentiments,
         "posts": analyzed_posts
     }
+
+@app.route('/dashboard')
+def get_dashboard_data():
+    # Mock data structure - replace with actual data collection logic
+    return jsonify({
+        "trends": [
+            {"name": "AI", "count": 2500},
+            {"name": "Cybersecurity", "count": 1800},
+            {"name": "Web3", "count": 1500}
+        ],
+        "sentiment": [
+            {"name": "positive", "value": 65, "color": "#00FF00"},
+            {"name": "neutral", "value": 25, "color": "#FFFF00"},
+            {"name": "negative", "value": 10, "color": "#FF0000"}
+        ],
+        "timeline": [
+            {"date": "2023-01-01", "mentions": 1500},
+            {"date": "2023-02-01", "mentions": 2200},
+            {"date": "2023-03-01", "mentions": 3000}
+        ]
+    })
 
 # 5. Then add your routes
 @app.route('/analyze_sentiment', methods=['POST', 'OPTIONS'])
