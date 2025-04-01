@@ -1,52 +1,45 @@
-import { Bar } from "react-chartjs-2";
-import { Chart, registerables } from "chart.js";
-import GeoMap from "../components/GeoMap";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-Chart.register(...registerables);
+const Trends = () => {
+  const [hashtags, setHashtags] = useState([]);
+  const [error, setError] = useState(null);
 
-const Trends = ({ data }) => {
-  const chartData = {
-    labels: data.labels,
-    datasets: [
-      {
-        label: "Trend Volume",
-        data: data.values,
-        backgroundColor: "#3B82F6",
-        borderRadius: 8,
-        hoverBackgroundColor: "#2563EB",
-      },
-    ],
-  };
+  useEffect(() => {
+    const fetchHashtags = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/get_trending_hashtags"
+        );
+        setHashtags(response.data.hashtags);
+      } catch (err) {
+        setError("Error fetching trending hashtags");
+      }
+    };
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { mode: "index" },
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: { beginAtZero: true },
-    },
-  };
+    fetchHashtags();
+  }, []);
 
   return (
-    <div className="bg-gray-900 min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Trend Analysis</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-gray-800 p-6 rounded-xl">
-            <h2 className="text-xl font-semibold mb-6">
-              Category Distribution
-            </h2>
-            <Bar data={chartData} options={options} />
-          </div>
-          <div className="bg-gray-800 p-6 rounded-xl">
-            <h2 className="text-xl font-semibold mb-6">Regional Trends</h2>
-            <GeoMap data={data.regional} />
-          </div>
-        </div>
-      </div>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        Trending Hashtags
+      </h2>
+      {error && (
+        <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">{error}</div>
+      )}
+      <ul className="divide-y divide-gray-200">
+        {hashtags.map((item, index) => (
+          <li key={index} className="py-2 flex justify-between items-center">
+            <span className="text-lg font-medium text-blue-600">
+              {item.hashtag}
+            </span>
+            <span className="text-sm text-gray-500">
+              Score: {Number(item.score).toFixed(1)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
