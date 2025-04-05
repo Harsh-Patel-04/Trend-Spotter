@@ -1,14 +1,16 @@
 import os
 import re
-from collections import defaultdict, Counter
+from collections import defaultdict
+from datetime import datetime
 from googleapiclient.discovery import build
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
+from datetime import datetime, timezone
 import praw
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import time
 
-# 1. Initialize NLTK first
 nltk.download('vader_lexicon')
 
 # Configure Reddit API client
@@ -28,14 +30,6 @@ YOUTUBE = build('youtube', 'v3', developerKey=API_KEY)
 app = Flask(__name__)
 CORS(app)
 
-def _build_cors_preflight_response():
-    response = make_response()
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
-    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-    return response
-
-# 2. YouTube trending hashtag analysis function
 def get_trending_hashtags(max_results=200):
     request = YOUTUBE.videos().list(
         part="snippet,statistics",
@@ -44,30 +38,58 @@ def get_trending_hashtags(max_results=200):
         maxResults=max_results
     )
     response = request.execute()
+
+    hashtag_metrics = defaultdict(lambda: {'count': 0, 'video_count': 0, 'view_counts': [], 'virality': []})
     
-    hashtag_metrics = defaultdict(lambda: {'count': 0, 'video_count': 0, 'view_counts': []})
-    
+    now = datetime.now(timezone.utc).timestamp()
+
     for item in response['items']:
-        text = item['snippet']['title'].lower() + " " + item['snippet']['description'].lower()
-        video_views = int(item['statistics']['viewCount'])
-        found_hashtags = set(re.findall(r"#(\w+)", text))  # Unique hashtags per video
+        snippet = item['snippet']
+        stats = item['statistics']
+
+        title = snippet['title'].lower()
+        description = snippet['description'].lower()
+        text = f"{title} {description}"
+        video_views = int(stats.get('viewCount', 0))
+
+        # Parse published time
+        published_at = datetime.strptime(snippet['publishedAt'], '%Y-%m-%dT%H:%M:%SZ')
+        published_timestamp = published_at.replace(tzinfo=timezone.utc).timestamp()
+        burst_time = now - published_timestamp
+        views_per_sec = video_views / burst_time if burst_time > 0 else video_views
+
+        hashtags = set(re.findall(r"#(\w+)", text))
         
-        for hashtag in found_hashtags:
+        for hashtag in hashtags:
             hashtag_metrics[hashtag]['count'] += 1
             hashtag_metrics[hashtag]['video_count'] += 1
             hashtag_metrics[hashtag]['view_counts'].append(video_views)
-    
-    # Calculate trending score: (video_count * avg_views) / total_occurrences
-    trending_scores = []
-    for hashtag, metrics in hashtag_metrics.items():
-        avg_views = sum(metrics['view_counts']) / len(metrics['view_counts']) if metrics['view_counts'] else 0
-        score = (metrics['video_count'] * avg_views) / (metrics['count'] or 1)
-        trending_scores.append((hashtag, score))
-    
-    # Sort by trending score descending
-    return sorted(trending_scores, key=lambda x: x[1], reverse=True)[:10]
+            hashtag_metrics[hashtag]['virality'].append({
+                "published": int(published_timestamp * 1000),  # ms for chart
+                "views": video_views,
+                "views_per_sec": views_per_sec
+            })
 
-# 3. Sentiment analysis function
+    hashtag_data = []
+    for hashtag, data in hashtag_metrics.items():
+        avg_views = sum(data['view_counts']) / len(data['view_counts']) if data['view_counts'] else 0
+        score = (data['video_count'] * avg_views) / (data['count'] or 1)
+
+        hashtag_data.append({
+            "hashtag": f"#{hashtag}",
+            "score": round(score, 2),
+            "virality": data['virality']
+        })
+
+    return sorted(hashtag_data, key=lambda x: x['score'], reverse=True)[:10]
+
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
+    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    return response
+
 def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None):
     subreddit = reddit.subreddit(subreddit_name)
     posts = subreddit.hot(limit=post_limit)
@@ -81,15 +103,15 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None)
             "url": post.url,
             "comments": []
         }
-        
+
         post.comments.replace_more(limit=0)
         all_comments = post.comments.list()
         comments = all_comments if comment_limit is None else all_comments[:comment_limit]
-        
+
         for comment in comments:
             text = comment.body
             score = analyzer.polarity_scores(text)['compound']
-            
+
             sentiment = "neutral"
             if score >= 0.05:
                 sentiment = "positive"
@@ -99,13 +121,13 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None)
                 sentiments["negative"] += 1
             else:
                 sentiments["neutral"] += 1
-            
+
             post_data["comments"].append({
                 "text": text,
                 "sentiment": sentiment,
                 "score": score
             })
-        
+
         analyzed_posts.append(post_data)
 
     return {
@@ -115,26 +137,61 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None)
         "posts": analyzed_posts
     }
 
-# 4. Flask routes
 @app.route('/dashboard')
 def get_dashboard_data():
-    return jsonify({
-        "trends": [
-            {"name": "AI", "count": 2500},
-            {"name": "Cybersecurity", "count": 1800},
-            {"name": "Web3", "count": 1500}
-        ],
-        "sentiment": [
-            {"name": "positive", "value": 65, "color": "#00FF00"},
-            {"name": "neutral", "value": 25, "color": "#FFFF00"},
-            {"name": "negative", "value": 10, "color": "#FF0000"}
-        ],
-        "timeline": [
-            {"date": "2023-01-01", "mentions": 1500},
-            {"date": "2023-02-01", "mentions": 2200},
-            {"date": "2023-03-01", "mentions": 3000}
+    try:
+        subreddit_name = "technology"
+        subreddit = reddit.subreddit(subreddit_name)
+        posts = list(subreddit.hot(limit=10))
+
+        now = int(time.time())
+
+        trends = []
+        virality = []
+
+        for post in posts:
+            created_time = int(post.created_utc)
+            burst_time = now - created_time
+            mentions = post.score
+
+            trends.append({
+                "name": post.title[:80] + ("..." if len(post.title) > 80 else ""),
+                "count": mentions
+            })
+
+            virality.append({
+                "topic": post.title[:50],
+                "startTime": created_time * 1000,  # ms for chart
+                "rate": mentions / burst_time if burst_time > 0 else mentions,
+                "mentions": mentions
+            })
+
+        # Sentiment from comments
+        reddit_sentiment = analyze_comments_sentiment(subreddit_name, post_limit=5)
+        sentiment_raw = reddit_sentiment["sentiment_distribution"]
+        total = sum(sentiment_raw.values()) or 1
+
+        sentiment = [
+            {"name": "positive", "value": round(sentiment_raw["positive"] * 100 / total), "color": "#00FF00"},
+            {"name": "neutral", "value": round(sentiment_raw["neutral"] * 100 / total), "color": "#FFFF00"},
+            {"name": "negative", "value": round(sentiment_raw["negative"] * 100 / total), "color": "#FF0000"}
         ]
-    })
+
+        # Dummy timeline (can be customized further)
+        timeline = [
+            {"date": "2025-01-01", "mentions": 1200},
+            {"date": "2025-02-01", "mentions": 2300},
+            {"date": "2025-03-01", "mentions": 3100}
+        ]
+
+        return jsonify({
+            "trends": trends,
+            "sentiment": sentiment,
+            "timeline": timeline,
+            "virality": virality
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/analyze_sentiment', methods=['POST', 'OPTIONS'])
 def analyze_sentiment():
@@ -156,15 +213,52 @@ def analyze_sentiment():
         error_response = jsonify({"error": str(e)})
         error_response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
         return error_response, 500
+    
+@app.route('/report', methods=['GET'])
+def get_combined_report():
+    try:
+        # Get dashboard data (Reddit)
+        subreddit_name = "technology"
+        reddit_sentiment = analyze_comments_sentiment(subreddit_name, post_limit=5)
+        sentiment_raw = reddit_sentiment["sentiment_distribution"]
+        total_sentiments = sum(sentiment_raw.values()) or 1
+
+        sentiment_summary = {
+            "positive_percent": round(sentiment_raw["positive"] * 100 / total_sentiments),
+            "neutral_percent": round(sentiment_raw["neutral"] * 100 / total_sentiments),
+            "negative_percent": round(sentiment_raw["negative"] * 100 / total_sentiments)
+        }
+
+        # Get trending hashtags (YouTube)
+        trending_hashtags = get_trending_hashtags()
+
+        # Predict future virality (very basic)
+        predicted_mentions = [
+            {"month": "2025-04", "mentions": 3400},
+            {"month": "2025-05", "mentions": 4100},
+            {"month": "2025-06", "mentions": 4700}
+        ]
+
+        return jsonify({
+            "summary": {
+                "total_analyzed_posts": reddit_sentiment["total_posts"],
+                "sentiment_distribution": sentiment_summary,
+                "top_hashtags": trending_hashtags[:5]
+            },
+            "predictions": predicted_mentions
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get_trending_hashtags', methods=['GET'])
 def get_trending_hashtags_route():
     try:
         trending_hashtags = get_trending_hashtags()
         return jsonify({
-            "hashtags": [{"hashtag": f"#{hashtag}", "score": score} for hashtag, score in trending_hashtags]
+            "hashtags": trending_hashtags
         })
     except Exception as e:
+        print("🔥 Error in /get_trending_hashtags:", e)
         return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(500)

@@ -9,10 +9,10 @@ import {
 
 const Navbar = () => {
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: ChartBarIcon },
-    { name: "Trends", href: "/trends", icon: FireIcon },
+    { name: "Redit Posts", href: "/dashboard", icon: ChartBarIcon },
+    { name: "Youtube Hashtags", href: "/trends", icon: FireIcon },
     { name: "Analysis", href: "/sentiment-analysis", icon: MapIcon },
-    { name: "Reports", href: "/reports", icon: DocumentChartBarIcon },
+    { name: "Report", href: "/report", icon: DocumentChartBarIcon }
   ];
 
   return (

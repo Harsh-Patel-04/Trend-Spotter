@@ -1,54 +1,7 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// const Trends = () => {
-//   const [hashtags, setHashtags] = useState([]);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     const fetchHashtags = async () => {
-//       try {
-//         const response = await axios.get(
-//           "http://localhost:5000/get_trending_hashtags"
-//         );
-//         setHashtags(response.data.hashtags);
-//       } catch (err) {
-//         setError("Error fetching trending hashtags");
-//       }
-//     };
-
-//     fetchHashtags();
-//   }, []);
-
-//   return (
-//     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-//       <h2 className="text-2xl font-bold text-gray-800 mb-4">
-//         Trending Hashtags
-//       </h2>
-//       {error && (
-//         <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">{error}</div>
-//       )}
-//       <ul className="divide-y divide-gray-200">
-//         {hashtags.map((item, index) => (
-//           <li key={index} className="py-2 flex justify-between items-center">
-//             <span className="text-lg font-medium text-blue-600">
-//               {item.hashtag}
-//             </span>
-//             <span className="text-sm text-gray-500">
-//               Score: {Number(item.score).toFixed(1)}
-//             </span>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// };
-
-// export default Trends;
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RefreshButton from "../components/RefreshButton";
+import { FaHashtag, FaFireAlt } from "react-icons/fa";
 
 const Trends = () => {
   const [hashtags, setHashtags] = useState([]);
@@ -75,26 +28,44 @@ const Trends = () => {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-gray-800 rounded-2xl shadow-md mt-10">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white">Trending Hashtags</h2>
-        <RefreshButton onClick={fetchHashtags} loading={loading} />
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold text-yellow-400 flex items-center gap-2">
+            <FaFireAlt /> YouTube Trending Hashtags
+          </h2>
+          <RefreshButton onClick={fetchHashtags} loading={loading} />
+        </div>
+
+        {error && (
+          <div className="text-red-400 mb-4 bg-gray-800 p-4 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-gray-400 text-lg animate-pulse">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {hashtags.map((item, index) => (
+              <div
+                key={index}
+                className="bg-gray-800 p-4 rounded-xl shadow hover:bg-gray-700 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-semibold text-blue-300 flex items-center gap-2">
+                    <FaHashtag />
+                    {item.hashtag}
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    Score: {Number(item.score).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Error & Loading states... */}
-
-      <ul className="divide-y divide-gray-700">
-        {hashtags.map((item, index) => (
-          <li key={index} className="py-3 flex justify-between items-center">
-            <span className="text-lg font-medium text-blue-400">
-              {item.hashtag}
-            </span>
-            <span className="text-sm text-gray-400">
-              {Number(item.score).toFixed(1)}
-            </span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };
