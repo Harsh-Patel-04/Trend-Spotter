@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import SentimentAnalysis from "./pages/SentimentAnalysis";
 import Trends from "./pages/Trends";
-import Report from "./pages/Report"; // ✅ Import it
+import Report from "./pages/Report";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
 import "./styles/leaflet-fix.css";
@@ -16,19 +16,24 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-gray-900 flex flex-col">
           <Navbar />
           <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
-              <Route path="/trends" element={<Trends />} />
-              <Route path="/report" element={<Report />} /> {/* ✅ Now added */}
-            </Routes>
+            <div className="flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                  path="/sentiment-analysis"
+                  element={<SentimentAnalysis />}
+                />
+                <Route path="/trends" element={<Trends />} />
+                <Route path="/report" element={<Report />} />
+              </Routes>
+            </div>
           </ErrorBoundary>
+          <Footer />
         </div>
-        <Footer />
       </Router>
     </ThemeProvider>
   );
