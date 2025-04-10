@@ -54,7 +54,6 @@ const Trends = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-semibold text-blue-300 flex items-center gap-2">
-                    <FaHashtag />
                     {item.hashtag}
                   </span>
                   <span className="text-sm text-gray-400">

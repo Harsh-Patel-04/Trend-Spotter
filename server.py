@@ -35,7 +35,8 @@ def get_trending_hashtags(max_results=200):
         part="snippet,statistics",
         chart="mostPopular",
         regionCode="IN",
-        maxResults=max_results
+        maxResults=max_results,
+        fields="items(snippet(title,description,publishedAt,tags),statistics/viewCount)"
     )
     response = request.execute()
 
@@ -58,7 +59,7 @@ def get_trending_hashtags(max_results=200):
         burst_time = now - published_timestamp
         views_per_sec = video_views / burst_time if burst_time > 0 else video_views
 
-        hashtags = set(re.findall(r"#(\w+)", text))
+        hashtags = set(re.findall(r"#([^\s!@#$%^&*(),.?\":{}|<>]+)", text))
         
         for hashtag in hashtags:
             hashtag_metrics[hashtag]['count'] += 1
@@ -137,7 +138,7 @@ def analyze_comments_sentiment(subreddit_name, post_limit=5, comment_limit=None)
         "posts": analyzed_posts
     }
 
-@app.route('/dashboard')
+@app.route('/reddit-posts')
 def get_dashboard_data():
     try:
         subreddit_name = "technology"

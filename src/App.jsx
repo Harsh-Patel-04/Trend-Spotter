@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
+import RedditPosts from "./pages/RedditPosts";
 import SentimentAnalysis from "./pages/SentimentAnalysis";
 import Trends from "./pages/Trends";
 import Report from "./pages/Report";
@@ -23,6 +24,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/reddit-posts" element={<RedditPosts />} />
                 <Route
                   path="/sentiment-analysis"
                   element={<SentimentAnalysis />}

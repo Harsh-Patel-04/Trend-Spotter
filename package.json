@@ -17,6 +17,8 @@
     "dompurify": "^3.2.5",
     "framer-motion": "^12.6.2",
     "heroicons": "^2.2.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.487.0",
     "react": "^19.0.0",

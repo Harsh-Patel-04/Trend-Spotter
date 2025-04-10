@@ -99,7 +99,7 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           <Link
-            to="/dashboard"
+            to="/reddit-posts"
             className="flex flex-col items-center gap-1 hover:bg-blue-800/20 px-4 py-2 rounded-lg transition-all group"
           >
             <BarChart3 className="w-6 h-6 group-hover:text-blue-300" />
