@@ -9,8 +9,9 @@ import RedditPosts from "./pages/RedditPosts";
 import SentimentAnalysis from "./pages/SentimentAnalysis";
 import Trends from "./pages/Trends";
 import Report from "./pages/Report";
-import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
+import VideoAnalysis from "./pages/VideoAnalysis";
 import "./styles/leaflet-fix.css";
 
 function App() {
@@ -25,12 +26,14 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/reddit-posts" element={<RedditPosts />} />
-                <Route
-                  path="/sentiment-analysis"
-                  element={<SentimentAnalysis />}
-                />
+                <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
                 <Route path="/trends" element={<Trends />} />
                 <Route path="/report" element={<Report />} />
+
+                {/* New route for video analysis */}
+                <Route path="/video/analysis/:videoId" element={<VideoAnalysis />} />
+
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
           </ErrorBoundary>
