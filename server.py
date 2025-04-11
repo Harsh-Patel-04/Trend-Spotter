@@ -41,18 +41,20 @@ CORS(app)
 # Endpoint: Get Trending Videos
 @app.route('/get_trending_videos', methods=['GET'])
 def get_trending_videos_route():
+    # Extract region from query parameters; default to "IN" if not provided
+    region = request.args.get('region', 'IN')
     try:
-        trending_videos = get_trending_videos()  # Call helper function
+        trending_videos = get_trending_videos(region=region)
         return jsonify({"videos": trending_videos})
     except Exception as e:
         print("Error in /get_trending_videos:", e)
         return jsonify({"error": str(e)}), 500
 
-def get_trending_videos(max_results=10):
+def get_trending_videos(max_results=10, region="IN"):
     request_obj = YOUTUBE.videos().list(
         part="snippet,statistics",
         chart="mostPopular",
-        regionCode="IN",  # Change region as needed
+        regionCode=region,  # Using dynamic region parameter
         maxResults=max_results,
         fields="items(id,snippet(title,publishedAt),statistics(viewCount))"
     )
@@ -71,7 +73,7 @@ def get_trending_videos(max_results=10):
 @app.route('/video_analysis', methods=['GET'])
 def video_analysis():
     video_id = request.args.get('video_id')
-    duration = request.args.get('duration', 'week')  # default to 'week'
+    duration = request.args.get('duration', 'week')  # Default to 'week'
 
     if not video_id:
         return jsonify({'error': 'video_id is required'}), 400
