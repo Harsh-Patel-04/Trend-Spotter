@@ -15,7 +15,10 @@ const Trends = () => {
   const fetchTrendingVideos = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/get_trending_videos", { timeout: 10000 });
+      const response = await axios.get(
+        "http://localhost:5000/get_trending_videos",
+        { timeout: 10000 }
+      );
       setVideos(response.data.videos || []);
     } catch (err) {
       setError(err.message || "Failed to load trending videos");
@@ -56,7 +59,7 @@ const Trends = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-          <h2 className="text-3xl font-bold text-yellow-400 flex items-center gap-2">
+          <h2 className="text-3xl font-bold text-white flex items-center gap-2">
             <FaFireAlt /> YouTube Trending Videos
           </h2>
           <RefreshButton onClick={fetchTrendingVideos} loading={loading} />
@@ -79,7 +82,11 @@ const Trends = () => {
           </button>
         </form>
 
-        {error && <div className="text-red-400 mb-4 bg-gray-800 p-4 rounded-lg">{error}</div>}
+        {error && (
+          <div className="text-red-400 mb-4 bg-gray-800 p-4 rounded-lg">
+            {error}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-gray-400 text-lg animate-pulse">Loading...</div>

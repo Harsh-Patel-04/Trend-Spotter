@@ -131,7 +131,7 @@ const SentimentAnalysis = () => {
   };
 
   const chartData = results && {
-    labels: ["Positive", "Neutral", "Negative"],
+    labels: ["Negative", "Neutral", "Positive"],
     datasets: [
       {
         data: Object.values(results.sentiment_distribution),
@@ -252,12 +252,12 @@ const SentimentAnalysis = () => {
             >
               Export CSV
             </button>
-            <button
+            {/* <button
               onClick={() => exportToPDF(results)}
               className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition-colors"
             >
               Export PDF
-            </button>
+            </button> */}
           </div>
         </div>
       )}
