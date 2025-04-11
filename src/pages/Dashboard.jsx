@@ -22,12 +22,14 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTrend, setSelectedTrend] = useState(null);
+  const [subredditInput, setSubredditInput] = useState("");
+  const [selectedSubreddit, setSelectedSubreddit] = useState("technology");
 
   useEffect(() => {
     const fetchRedditData = async () => {
       try {
         const response = await axios.get(
-          "https://www.reddit.com/r/technology/top.json?limit=8"
+          `https://www.reddit.com/r/${selectedSubreddit}/top.json?limit=8`
         );
 
         const posts = response.data.data.children.map((post) => ({
@@ -37,10 +39,9 @@ const Dashboard = () => {
           created: post.data.created_utc,
           author: post.data.author,
           url: `https://reddit.com${post.data.permalink}`,
-          sentiment: Math.random() * 100, // Simulated sentiment score
+          sentiment: Math.random() * 100,
         }));
 
-        // Generate sentiment distribution
         const sentimentData = posts.reduce(
           (acc, post) => {
             if (post.sentiment > 70) acc.positive++;
@@ -75,14 +76,26 @@ const Dashboard = () => {
           })),
         });
       } catch (err) {
-        setError("Failed to fetch real-time data. Please try again later.");
+        setError(
+          `Failed to fetch data for /r/${selectedSubreddit}. Please check the subreddit name and try again.`
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchRedditData();
-  }, []);
+  }, [selectedSubreddit]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (subredditInput.trim()) {
+      setSelectedSubreddit(subredditInput.trim());
+      setLoading(true);
+      setError(null);
+      setData(null);
+    }
+  };
 
   if (loading) return <Loader />;
   if (error) return <ErrorMessage message={error} />;
@@ -90,15 +103,33 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-blue-400">
-          Real-time Tech Trends Dashboard
-        </h1>
+        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+          <h1 className="text-3xl font-bold text-blue-400">
+            Real-time /r/{selectedSubreddit} Trends
+          </h1>
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <input
+              type="text"
+              value={subredditInput}
+              onChange={(e) => setSubredditInput(e.target.value)}
+              placeholder="Enter subreddit..."
+              className="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+            >
+              Change
+            </button>
+          </form>
+        </div>
 
+        {/* Rest of the dashboard components remain the same */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Reddit Trends List */}
           <div className="bg-gray-800 p-6 rounded-2xl shadow-xl">
             <h2 className="text-xl font-semibold mb-6 text-gray-300">
-              Trending Tech Discussions
+              Trending Discussions
             </h2>
             <div className="space-y-4">
               {data.trends.map((trend, index) => (
@@ -129,7 +160,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Sentiment Analysis */}
+          {/* Sentiment Analysis Pie Chart */}
           <div className="bg-gray-800 p-6 rounded-2xl shadow-xl">
             <h2 className="text-xl font-semibold mb-6 text-gray-300">
               Discussion Sentiment Distribution
@@ -159,7 +190,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Virality Bubble Chart */}
+          {/* Engagement Bubble Chart */}
           <div className="bg-gray-800 p-6 rounded-2xl shadow-xl col-span-full">
             <h2 className="text-xl font-semibold mb-6 text-gray-300">
               Post Engagement Analysis
