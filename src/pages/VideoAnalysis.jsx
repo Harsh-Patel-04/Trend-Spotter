@@ -32,8 +32,6 @@ const VideoAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // We no longer need userInput or forecastData or any custom form states
-
   const [predictionDuration, setPredictionDuration] = useState("week");
 
   // Fetch video analysis from the backend
@@ -88,6 +86,12 @@ const VideoAnalysis = () => {
     ],
   };
 
+  // Function to open the video on YouTube in a new tab
+  const openVideoOnYouTube = () => {
+    const url = `https://www.youtube.com/watch?v=${videoId}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans">
       <div className="max-w-4xl mx-auto">
@@ -104,7 +108,7 @@ const VideoAnalysis = () => {
 
         {analysis && !loading && (
           <>
-            {/* Header Section: Two-column layout for video details and sentiment analysis */}
+            {/* Header Section: Video details and sentiment chart */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div className="md:w-2/3">
                 <h2 className="text-3xl font-bold mb-2">{analysis.title}</h2>
@@ -116,8 +120,16 @@ const VideoAnalysis = () => {
                 <p>Likes: {analysis.likeCount}</p>
                 <p>Comments: {analysis.commentCount}</p>
                 <p className="mt-2">Click Ratio: {analysis.analysis.click_ratio}%</p>
+                
+                {/* Button to open video on YouTube */}
+                <button
+                  onClick={openVideoOnYouTube}
+                  className="mt-4 px-4 py-2 bg-red-600 rounded hover:bg-red-700 text-white"
+                >
+                  Watch on YouTube
+                </button>
               </div>
-              {/* Smaller sentiment chart on the right */}
+              {/* Sentiment Chart on the right */}
               <div className="md:w-1/3 mt-6 md:mt-0 flex justify-center">
                 {sentimentChartData && (
                   <Pie
@@ -130,7 +142,7 @@ const VideoAnalysis = () => {
               </div>
             </div>
 
-            {/* Refresh button */}
+            {/* Refresh Button */}
             <RefreshButton onClick={fetchVideoAnalysis} loading={loading} />
 
             {/* Additional YouTube Analytics */}
@@ -138,30 +150,14 @@ const VideoAnalysis = () => {
               <h3 className="text-2xl font-bold mb-4">Additional Analytics</h3>
               <p><strong>Impressions:</strong> {analysis.analytics.impressions}</p>
               <p><strong>CTR:</strong> {analysis.analytics.ctr}%</p>
-
               <p className="mt-2"><strong>How Viewers Find this Video:</strong></p>
               <ul className="list-disc pl-5">
-                {/* If you CAN get real data, map them here. If not, remove or comment out */}
                 {Object.entries(analysis.analytics.viewer_sources).map(([source, percent]) => (
                   <li key={source}>
                     <strong>{source}:</strong> {percent}
                   </li>
                 ))}
               </ul>
-
-              {/* If content_suggestions is always static, remove or comment out this block: */}
-              {/* 
-                <p className="mt-2"><strong>Content Suggesting this Video:</strong> 
-                   {analysis.analytics.content_suggestions.join(", ")}
-                </p>
-              */}
-              {/* If youtube_search_terms is always static, remove or comment out this block: */}
-              {/* 
-                <p className="mt-2"><strong>YouTube Search Terms:</strong> 
-                   {analysis.analytics.youtube_search_terms.join(", ")}
-                </p>
-              */}
-
               <p className="mt-2">
                 <strong>Average View Duration:</strong> {analysis.analytics.average_view_duration}
               </p>
@@ -178,7 +174,7 @@ const VideoAnalysis = () => {
               </ul>
             </div>
 
-            {/* Future Prediction Section (Line Chart) */}
+            {/* Future Predictions Section */}
             <div className="mt-8 bg-gray-800 p-4 rounded-lg">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">Future View Predictions</h3>
@@ -196,7 +192,7 @@ const VideoAnalysis = () => {
               </div>
             </div>
 
-            {/* Top 10 Comments Section (Remove if you don't need them) */}
+            {/* Top 10 Comments Section */}
             <div className="mt-10 bg-gray-800 p-4 rounded-lg">
               <h3 className="text-2xl font-bold mb-4">Top 10 Comments</h3>
               {analysis.top_comments && analysis.top_comments.length > 0 ? (
