@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import RedditPosts from "./pages/RedditPosts";
 import SentimentAnalysis from "./pages/SentimentAnalysis";
 import Trends from "./pages/Trends";
+import TrendSpotter from "./pages/TrendSpotter";
 import Report from "./pages/Report";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -26,14 +27,25 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/reddit-posts" element={<RedditPosts />} />
-                <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
+                <Route
+                  path="/sentiment-analysis"
+                  element={<SentimentAnalysis />}
+                />
                 <Route path="/trends" element={<Trends />} />
                 <Route path="/report" element={<Report />} />
 
                 {/* New route for video analysis */}
-                <Route path="/video/analysis/:videoId" element={<VideoAnalysis />} />
+                <Route
+                  path="/video/analysis/:videoId"
+                  element={<VideoAnalysis />}
+                />
 
                 <Route path="*" element={<NotFound />} />
+                <Route path="/trend-spotter" element={<TrendSpotter />} />
+                <Route
+                  path="/trend-spotter/:region"
+                  element={<TrendSpotter />}
+                />
               </Routes>
             </div>
           </ErrorBoundary>

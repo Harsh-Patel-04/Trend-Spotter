@@ -80,8 +80,8 @@ const Trends = () => {
         {/* Header: Title, region select drop-down, and refresh button */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex items-center gap-2">
-            <FaFireAlt className="text-yellow-400" />
-            <h2 className="text-3xl font-bold text-yellow-400">
+            <FaFireAlt className="text-white" />
+            <h2 className="text-3xl font-bold text-white">
               YouTube Trending Videos
             </h2>
           </div>
