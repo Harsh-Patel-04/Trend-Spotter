@@ -12,9 +12,9 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  BarElement
-} from 'chart.js';
-import { Pie, Line } from 'react-chartjs-2';
+  BarElement,
+} from "chart.js";
+import { Pie, Line } from "react-chartjs-2";
 
 ChartJS.register(
   ArcElement,
@@ -78,7 +78,9 @@ const VideoAnalysis = () => {
     datasets: [
       {
         label: "Future Views Prediction",
-        data: analysis.analysis.future_prediction.map((pred) => pred.predicted_views),
+        data: analysis.analysis.future_prediction.map(
+          (pred) => pred.predicted_views
+        ),
         fill: false,
         borderColor: "#4FD1C5",
         tension: 0.1,
@@ -101,9 +103,7 @@ const VideoAnalysis = () => {
           </div>
         )}
         {error && (
-          <div className="text-red-400 bg-gray-800 p-4 rounded-lg">
-            {error}
-          </div>
+          <div className="text-red-400 bg-gray-800 p-4 rounded-lg">{error}</div>
         )}
 
         {analysis && !loading && (
@@ -114,13 +114,16 @@ const VideoAnalysis = () => {
                 <h2 className="text-3xl font-bold mb-2">{analysis.title}</h2>
                 <p className="mt-2">{analysis.description}</p>
                 <p className="mt-2">
-                  Published: {new Date(analysis.publishedAt).toLocaleDateString()}
+                  Published:{" "}
+                  {new Date(analysis.publishedAt).toLocaleDateString()}
                 </p>
                 <p>Views: {analysis.viewCount}</p>
                 <p>Likes: {analysis.likeCount}</p>
                 <p>Comments: {analysis.commentCount}</p>
-                <p className="mt-2">Click Ratio: {analysis.analysis.click_ratio}%</p>
-                
+                <p className="mt-2">
+                  Click Ratio: {analysis.analysis.click_ratio}%
+                </p>
+
                 {/* Button to open video on YouTube */}
                 <button
                   onClick={openVideoOnYouTube}
@@ -148,34 +151,47 @@ const VideoAnalysis = () => {
             {/* Additional YouTube Analytics */}
             <div className="mt-8 bg-gray-800 p-4 rounded-lg">
               <h3 className="text-2xl font-bold mb-4">Additional Analytics</h3>
-              <p><strong>Impressions:</strong> {analysis.analytics.impressions}</p>
-              <p><strong>CTR:</strong> {analysis.analytics.ctr}%</p>
-              <p className="mt-2"><strong>How Viewers Find this Video:</strong></p>
+              <p>
+                <strong>Impressions:</strong> {analysis.analytics.impressions}
+              </p>
+              <p>
+                <strong>CTR:</strong> {analysis.analytics.ctr}%
+              </p>
+              <p className="mt-2">
+                <strong>How Viewers Find this Video:</strong>
+              </p>
               <ul className="list-disc pl-5">
-                {Object.entries(analysis.analytics.viewer_sources).map(([source, percent]) => (
-                  <li key={source}>
-                    <strong>{source}:</strong> {percent}
-                  </li>
-                ))}
+                {Object.entries(analysis.analytics.viewer_sources).map(
+                  ([source, percent]) => (
+                    <li key={source}>
+                      <strong>{source}:</strong> {percent}
+                    </li>
+                  )
+                )}
               </ul>
               <p className="mt-2">
-                <strong>Average View Duration:</strong> {analysis.analytics.average_view_duration}
+                <strong>Average View Duration:</strong>{" "}
+                {analysis.analytics.average_view_duration}
               </p>
               <p className="mt-2">
                 <strong>Watch Time:</strong> {analysis.analytics.watch_time}
               </p>
-              <p className="mt-2"><strong>Audience:</strong></p>
+              <p className="mt-2">
+                <strong>Audience:</strong>
+              </p>
               <ul className="list-disc pl-5">
-                {Object.entries(analysis.analytics.audience).map(([group, value]) => (
-                  <li key={group}>
-                    <strong>{group}:</strong> {value}
-                  </li>
-                ))}
+                {Object.entries(analysis.analytics.audience).map(
+                  ([group, value]) => (
+                    <li key={group}>
+                      <strong>{group}:</strong> {value}
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
             {/* Future Predictions Section */}
-            <div className="mt-8 bg-gray-800 p-4 rounded-lg">
+            {/* <div className="mt-8 bg-gray-800 p-4 rounded-lg">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">Future View Predictions</h3>
                 <select
@@ -190,7 +206,7 @@ const VideoAnalysis = () => {
               <div className="mt-4">
                 {lineChartData && <Line data={lineChartData} />}
               </div>
-            </div>
+            </div> */}
 
             {/* Top 10 Comments Section */}
             <div className="mt-10 bg-gray-800 p-4 rounded-lg">
@@ -200,8 +216,11 @@ const VideoAnalysis = () => {
                   {analysis.top_comments.map((comment, index) => (
                     <li key={index} className="border-b border-gray-700 pb-2">
                       <p className="text-blue-300 font-semibold">
-                        {comment.author} 
-                        <span className="text-gray-500 text-sm"> ({comment.likes} likes)</span>
+                        {comment.author}
+                        <span className="text-gray-500 text-sm">
+                          {" "}
+                          ({comment.likes} likes)
+                        </span>
                       </p>
                       <p>{comment.text}</p>
                     </li>

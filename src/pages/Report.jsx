@@ -56,15 +56,23 @@ const Reports = () => {
 
   return (
     <div className="p-10 text-white max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold text-blue-400 mb-8">📈 Forecast Report</h1>
+      <h1 className="text-3xl font-bold text-blue-400 mb-8">
+        📈 Forecast Report
+      </h1>
 
       <div className="space-y-4 mb-10">
-        <p><strong>Total Analyzed Reddit Posts:</strong> {summary.total_analyzed_posts}</p>
-        <p><strong>Top YouTube Hashtags:</strong></p>
+        <p>
+          <strong>Total Analyzed Youtube Videos:</strong>{" "}
+          {summary.total_analyzed_posts}
+        </p>
+        <p>
+          <strong>Top YouTube Hashtags:</strong>
+        </p>
         <ul className="list-disc pl-6">
           {summary.top_hashtags.map((h, idx) => (
             <li key={idx}>
-              <span className="text-blue-300 font-semibold">{h.hashtag}</span> — Score: {h.score}
+              <span className="text-blue-300 font-semibold">{h.hashtag}</span> —
+              Score: {h.score}
             </li>
           ))}
         </ul>
@@ -72,7 +80,9 @@ const Reports = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
         <div className="bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">📊 Sentiment Distribution</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            📊 Sentiment Distribution
+          </h2>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -95,7 +105,9 @@ const Reports = () => {
         </div>
 
         <div className="bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">🔮 Future Mentions Forecast</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            🔮 Future Mentions Forecast
+          </h2>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={predictions}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -117,8 +129,9 @@ const Reports = () => {
       <div className="bg-gray-800 p-6 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">📌 Summary Insight</h2>
         <p className="text-gray-300">
-          Based on Reddit sentiment and YouTube virality analysis, we expect a steady increase
-          in topic engagement in the upcoming months. Keep an eye on trending topics like{" "}
+          Based on Reddit sentiment and YouTube virality analysis, we expect a
+          steady increase in topic engagement in the upcoming months. Keep an
+          eye on trending topics like{" "}
           <span className="text-blue-300 font-semibold">
             {summary.top_hashtags[0].hashtag}
           </span>{" "}
